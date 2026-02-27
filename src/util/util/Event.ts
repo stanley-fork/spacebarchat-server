@@ -26,6 +26,10 @@ import { Socket } from "node:net";
 import { FSWatcher } from "node:fs";
 import { Stopwatch } from "./Stopwatch";
 import { Config } from "./Config";
+import net from "net";
+import fs from "fs";
+import { red } from "picocolors";
+
 export const events = new EventEmitter();
 let unixSocketListener: UnixSocketListener | null = null;
 let unixSocketWriter: UnixSocketWriter | null = null;
@@ -227,9 +231,6 @@ class UnixSocketListener {
     }
 
     async init() {
-        const net = await import("net");
-        const fs = await import("fs");
-
         // remove stale socket file if it exists
         // can happen if there's a PID conflict (across containers/PID namespaces)
         try {
@@ -322,9 +323,6 @@ class UnixSocketWriter {
     }
 
     async init() {
-        const net = await import("net");
-        const fs = await import("fs");
-
         if (!fs.opendirSync(this.socketPath)) throw new Error("Unix socket path does not exist or is not a directory: " + this.socketPath);
 
         console.log("[Events] Unix socket writer initializing for", this.socketPath);
