@@ -24,6 +24,8 @@ import { HTTPError } from "lambert-server";
 import crypto from "crypto";
 import { multer } from "../util/multer";
 import { cache } from "../util/cache";
+import { FileStorage } from "@spacebar/cdn*";
+import fs from "fs/promises";
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
@@ -103,7 +105,25 @@ router.delete("/:guild_id/:id", async (req: Request, res: Response) => {
 
 async function getOrMoveFile(newPath: string, oldPath: string) {
     let file = await storage.get(newPath);
-    if (!file) {
+    if (file) {
+        if (!(await storage.isFile(newPath))) {
+            console.log(`[CDN] Migrating sticker from subdirectory+fallback to direct path for ${newPath}`);
+            // noinspection SuspiciousTypeOfGuard -- not sure whats up with this
+            if (storage instanceof FileStorage) {
+                const files = await fs.readdir(storage.getFsPath(newPath));
+                if (files.length === 1) {
+                    const oldFilePath = storage.getFsPath(`${newPath}/${files[0]}`);
+                    const newFilePath = storage.getFsPath(newPath);
+                    await fs.rename(oldFilePath, newFilePath + ".tmp");
+                    await fs.rmdir(storage.getFsPath(newPath));
+                    await fs.rename(newFilePath + ".tmp", newFilePath);
+                    file = await storage.get(newPath);
+                } else console.log(`[CDN] Warning: not migrating sticker ${newPath}, as there are multiple files in the old directory`);
+            } else {
+                console.log("[CDN] Warning: no migration for s3 storage stickers, as it is not a filesystem");
+            }
+        }
+    } else {
         if (await storage.exists(oldPath)) {
             console.log(`[${pathPrefix}] found file at old path ${oldPath}, moving to new path ${newPath}`);
             await storage.move(oldPath, newPath);
