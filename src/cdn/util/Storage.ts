@@ -82,8 +82,15 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
         location = undefined;
     }
 
+    // if false, the bucket name is used as a subdomain
+    const forcePathStyle = process.env.STORAGE_FORCE_PATH_STYLE === "true";
+
+    if (process.env.STORAGE_FORCE_PATH_STYLE === undefined) {
+        console.warn(`[CDN] STORAGE_FORCE_PATH_STYLE unconfigured for S3 provider, defaulting to use virtual-hosted style...`);
+    }
+
     const { S3Storage } = require("./S3Storage");
-    storage = new S3Storage(region, bucket, endpoint, location);
+    storage = new S3Storage(region, bucket, endpoint, forcePathStyle, location);
 }
 
 export { storage };
