@@ -22,6 +22,7 @@ import { OrmUtils } from "..";
 import { ConfigValue } from "../config";
 import { ConfigEntity } from "../entities";
 import { JsonValue } from "@protobuf-ts/runtime";
+import { bold, red, redBright } from "picocolors";
 
 // TODO: yaml instead of json
 const overridePath = process.env.CONFIG_PATH ?? "";
@@ -37,6 +38,14 @@ export class Config {
         if (config && !force) return config;
         console.log("[Config] Loading configuration...");
         if (!process.env.CONFIG_PATH) {
+            if (process.env.CONFIG_SOURCE !== "database") {
+                console.log("[Config]:", redBright("Warning:"), bold("Database driven configuration has been deprecated"));
+                console.log("[Config]:", redBright("Warning:"), "Please migrate to JSON configuration by setting CONFIG_PATH=/path/to/config.json");
+                console.log("[Config]:", redBright("Warning:"), "  or set CONFIG_SOURCE=database to ignore this warning for now.");
+                console.log("[Config]:", redBright("Warning:"), "");
+                console.log("[Config]:", redBright("Warning:"), "Note that this option will be removed soon, and lack hereof will stop the server from starting!");
+            }
+
             pairs = await validateConfig();
             config = pairsToConfig(pairs);
         } else {
