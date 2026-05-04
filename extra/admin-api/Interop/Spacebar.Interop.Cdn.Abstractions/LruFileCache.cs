@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+using System.Collections.Immutable;
 using ArcaneLibs;
 
 namespace Spacebar.Interop.Cdn.Abstractions;

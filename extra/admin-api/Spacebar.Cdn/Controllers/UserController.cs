@@ -8,12 +8,11 @@ using Spacebar.Interop.Cdn.Abstractions;
 namespace Spacebar.Cdn.Controllers;
 
 [ApiController]
-public class UserController(LruFileCache lfc, IFileSource fs, CdnWorkerService cws) : ControllerBase {
-    [HttpGet("/avatars/{userId}/{hash}")]
+public class UserController(LruFileCache lfc, IFileSource fs, CdnWorkerService cws) : ImageController(lfc, fs, cws) {
+    [HttpGet("/avatars/{userId}/{hash}")] // technically an invalid request?
     [HttpGet("/avatars/{userId}/{hash}.{ext}")]
     public async Task<IActionResult> GetUserAvatar(string userId, string hash, string ext = "webp") {
         DiscordImageResizeParams resizeParams = Request.GetResizeParams();
-        var originalKey = fs.BaseUrl + Request.Path;
         var cacheKey = Request.Path + resizeParams.ToSerializedName();
         LruFileCache.Entry? entry;
         if (!Request.Query.Any() || resizeParams.Passthrough) {
@@ -29,7 +28,7 @@ public class UserController(LruFileCache lfc, IFileSource fs, CdnWorkerService c
                 var res = await cws.GetRawClient("q8").GetAsync("/scale" + Request.Path + Request.QueryString);
                 var outStream = await res.Content.ReadAsStreamAsync();
 
-                return new LruFileCache.Entry() {
+                return new LruFileCache.Entry {
                     Data = outStream.ReadToEnd().ToArray(),
                     MimeType = res.Content.Headers.ContentType?.ToString() ?? original.MimeType
                 };

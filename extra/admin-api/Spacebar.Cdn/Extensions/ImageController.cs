@@ -1,35 +1,33 @@
+using ArcaneLibs.Extensions.Streams;
 using Microsoft.AspNetCore.Mvc;
 using Spacebar.AdminApi.TestClient.Services.Services;
+using Spacebar.Cdn.Services;
+using Spacebar.Interop.Cdn.Abstractions;
 
 namespace Spacebar.Cdn.Extensions;
 
+[ApiController]
+public class ImageController(LruFileCache lfc, IFileSource fs, CdnWorkerService cws) : ControllerBase {
+    public async Task<IActionResult> GetImage(string path) {
+        DiscordImageResizeParams resizeParams = Request.GetResizeParams();
+        var cacheKey = path + resizeParams.ToSerializedName();
+        if (!Request.Query.Any() || resizeParams.Passthrough) {
+            await using var original = await fs.GetFile(path);
+            return new FileContentResult(original.Stream.ReadToEnd().ToArray(), original.MimeType);
+        }
 
-public static class HttpRequestExtensions {
-    extension(HttpRequest request) {
-        public DiscordImageResizeParams GetResizeParams() {
-            return new() {
-                Size = request.Query.ContainsKey("size") && uint.TryParse(request.Query["size"], out uint size) ? size : null,
-                Quality = request.Query.ContainsKey("quality") && Enum.TryParse<DiscordImageResizeQuality>(request.Query["quality"], true, out var quality)
-                    ? quality
-                    : DiscordImageResizeQuality.High,
-                KeepAspectRatio = !request.Query.ContainsKey("keepAspectRatio") || !bool.TryParse(request.Query["keepAspectRatio"], out bool kar) || kar,
-                Passthrough = request.Query.ContainsKey("passthrough") && bool.TryParse(request.Query["passthrough"], out bool pt) && pt,
-                Animated = request.Query.ContainsKey("animated") && bool.TryParse(request.Query["animated"], out bool an) && an,
-                SpacebarAllowUpscale = request.Query.ContainsKey("allowUpscale") && bool.TryParse(request.Query["allowUpscale"], out bool au) && au,
-                SpacebarOptimiseGif = request.Query.ContainsKey("optimiseGif") && bool.TryParse(request.Query["optimiseGif"], out bool og) && og,
+        var entry = await lfc.GetOrAdd(cacheKey, async () => {
+            var original = await fs.GetFile(path);
+            var res = await cws.GetRawClient("q8").GetAsync("/scale" + path + Request.QueryString);
+            var outStream = await res.Content.ReadAsStreamAsync();
+
+            return new LruFileCache.Entry() {
+                Data = outStream.ReadToEnd().ToArray(),
+                MimeType = res.Content.Headers.ContentType?.ToString() ?? original.MimeType
             };
-        }
-    }
-    
-    extension (HttpResponse response) {
-        public void SetSuccessCacheHeader() {
-            int cacheDuration = (int)TimeSpan.FromHours(6).TotalSeconds;
-            response.Headers.CacheControl = $"public, max-age={cacheDuration}, s-maxage={cacheDuration}, immutable";
-        }
+        });
 
-        public void SetFailureCacheHeader() {
-            int cacheDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
-            response.Headers.CacheControl = $"public, max-age={cacheDuration}, s-maxage={cacheDuration}, immutable";
-        }
+        // byte array with mime type result
+        return new FileContentResult(entry.Data, entry.MimeType);
     }
 }

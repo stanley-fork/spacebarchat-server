@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Spacebar.Cdn.Services;
 
@@ -7,12 +7,12 @@ public class SpacebarCdnWorkerConfiguration {
         config.GetRequiredSection("Spacebar").GetRequiredSection("Cdn").GetRequiredSection("Workers").Bind(this);
     }
 
-    [JsonProperty("q8")]
+    [JsonPropertyName("q8")]
     public List<string> Q8Workers { get; set; } = [];
 
-    [JsonProperty("q16")]
+    [JsonPropertyName("q16")]
     public List<string> Q16Workers { get; set; } = [];
 
-    [JsonProperty("q16-hdri")]
+    [JsonPropertyName("q16-hdri")]
     public List<string> Q16HdriWorkers { get; set; } = [];
 }

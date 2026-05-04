@@ -24,6 +24,7 @@ public class FilesystemFileSource(string baseUrl) : IFileSource {
         await using var rs = File.OpenRead(GetPathSafe(path));
         var ms = new MemoryStream();
         await rs.CopyToAsync(ms);
+        ms.Seek(0, SeekOrigin.Begin);
         return new() {
             Stream = ms,
             MimeType = "MIME/TYPE"

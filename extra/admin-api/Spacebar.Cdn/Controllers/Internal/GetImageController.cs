@@ -1,9 +1,9 @@
+// #if DEBUG
 // using ArcaneLibs;
 // using ArcaneLibs.Collections;
 // using ImageMagick;
 // using Microsoft.AspNetCore.Mvc;
 // using Spacebar.AdminApi.TestClient.Services.Services;
-// using Spacebar.Cdn.Extensions;
 // using Spacebar.Interop.Cdn.Abstractions;
 //
 // namespace Spacebar.Cdn.Controllers.Internal;
@@ -156,7 +156,8 @@
 //         var img = new MagickImageCollection();
 //
 //         var ms = new MemoryStream();
-//         
+//
 //         return new FileContentResult(ms.ToArray(), "image/gif");
 //     }
 // }
+// #endif
