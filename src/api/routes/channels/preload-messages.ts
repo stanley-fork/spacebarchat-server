@@ -20,7 +20,7 @@ import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api/middlewares";
 import { Message } from "@spacebar/database";
 import { Config } from "@spacebar/util";
-import { PreloadMessagesRequestSchema, PublicMessageArray } from "@spacebar/schemas";
+import { PreloadMessagesRequestSchema, PublicMessageListResponse } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -30,7 +30,7 @@ router.post(
         requestBody: "PreloadMessagesRequestSchema",
         responses: {
             200: {
-                body: "PublicMessageArray",
+                body: "PublicMessageListResponse",
             },
             400: {
                 body: "APIErrorResponse",
@@ -62,7 +62,7 @@ router.post(
             // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
             x.reactions = undefined;
             return x;
-        }) as unknown as PublicMessageArray;
+        }) as unknown as PublicMessageListResponse;
 
         return res.status(200).send(filteredMessages);
     },

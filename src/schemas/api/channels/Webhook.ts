@@ -29,7 +29,7 @@ export interface WebhookCreateResponse {
     hook: WebhookResponse;
 }
 
-export type WebhookArray = WebhookResponse[];
+export type WebhookListResponse = WebhookResponse[];
 export interface WebhookResponse {
     id: Snowflake;
     type: WebhookType;

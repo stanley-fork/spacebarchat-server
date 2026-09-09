@@ -30,7 +30,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "APIPrivateUser",
+                body: "PrivateUser",
             },
         },
     }),

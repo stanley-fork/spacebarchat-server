@@ -31,7 +31,6 @@
         "UpdateRouteResponse",
         "MessagesSendAPIResponse",
         "APIWebhook",
-        "WebhookResponse",
         "WebhookValidationResponse",
         "MessageResponse",
         "ConnectionSettingsResponse",

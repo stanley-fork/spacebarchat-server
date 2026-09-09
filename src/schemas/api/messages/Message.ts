@@ -163,7 +163,7 @@ export interface MessageSnapshot {
     };
 }
 
-export type PublicMessageArray = PublicMessage[];
+export type PublicMessageListResponse = PublicMessage[];
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;

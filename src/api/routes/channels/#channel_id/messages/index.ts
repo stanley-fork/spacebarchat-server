@@ -78,7 +78,7 @@ router.get(
         },
         responses: {
             200: {
-                body: "PublicMessageArray",
+                body: "PublicMessageListResponse",
             },
             400: {
                 body: "APIErrorResponse",

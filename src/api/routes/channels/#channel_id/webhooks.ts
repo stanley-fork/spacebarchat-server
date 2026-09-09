@@ -34,7 +34,7 @@ router.get(
         permission: "MANAGE_WEBHOOKS",
         responses: {
             200: {
-                body: "WebhookArray",
+                body: "WebhookListResponse",
             },
         },
     }),

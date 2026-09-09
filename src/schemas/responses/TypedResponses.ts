@@ -21,17 +21,15 @@ import { GeneralConfiguration, LimitsConfiguration } from "../../util/config/typ
 import { DmChannelDTO } from "../../util/dtos";
 // TODO: remove entity imports
 import { Application, Categories, Channel, Guild, Invite, Template } from "@spacebar/database";
-import { GuildCreateResponse, PrivateUser, PublicUser } from "@spacebar/schemas";
+import { GuildCreateResponse, PrivateUser } from "@spacebar/schemas";
 
 // TODO: remove this entire file!
 // removes internal properties from the guild class
 export type APIGuild = Omit<Guild, "afk_channel" | "template" | "owner" | "public_updates_channel" | "rules_channel" | "system_channel" | "widget_channel">;
-export type APIPublicUser = PublicUser;
-export type APIPrivateUser = PrivateUser;
 export type APIGuildArray = APIGuild[];
 export type APIDMChannelArray = DmChannelDTO[];
 
-export interface UserUpdateResponse extends APIPrivateUser {
+export interface UserUpdateResponse extends PrivateUser {
     newToken?: string;
 }
 
