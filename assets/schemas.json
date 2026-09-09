@@ -6260,7 +6260,14 @@
             "attachments": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/MessageCreateAttachment"
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/MessageCreateAttachment"
+                        },
+                        {
+                            "$ref": "#/definitions/MessageCreateCloudAttachment"
+                        }
+                    ]
                 }
             },
             "flags": {
